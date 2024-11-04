@@ -1,0 +1,47 @@
+name: Semantic Version Tagging and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  semver:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Git for tagging
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Determine next version and create tag
+        id: semver
+        uses: ietf-tools/semver-action@v3
+        with:
+          minor_pattern: "^feat"
+          patch_pattern: "^fix"
+          major_pattern: "^BREAKING"
+
+      - name: Create and push tag
+        if: steps.semver.outputs.new_version != ''
+        run: |
+          git tag ${{ steps.semver.outputs.new_version }}
+          git push origin ${{ steps.semver.outputs.new_version }}
+
+      - name: Create GitHub release
+        if: steps.semver.outputs.new_version != ''
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.semver.outputs.new_version }}
+          release_name: "Release ${{ steps.semver.outputs.new_version }}"
+          body: |
+            ## Changes
+            - New version created based on recent updates
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
