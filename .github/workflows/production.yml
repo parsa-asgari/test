@@ -18,26 +18,24 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Get Next Version
+      - name: Magic Semver Action
         id: semver
-        uses: ietf-tools/semver-action@v1.8.0
+        uses: mehdi-ra/semversion@v0.1.1
         with:
-          token: ${{ github.token }}
-          branch: main
-          skipInvalidTags: true
+          addDate: 'true'
 
       - name: Create and push tag
-        if: steps.semver.outputs.next != ''
+        if: steps.semver.outputs.nextVersion != ''
         run: |
-          git tag ${{ steps.semver.outputs.next }}
-          git push origin ${{ steps.semver.outputs.next }}
+          git tag ${{ steps.semver.outputs.nextVersion }}
+          git push origin ${{ steps.semver.outputs.nextVersion }}
 
       - name: Create GitHub release
-        if: steps.semver.outputs.next != ''
+        if: steps.semver.outputs.nextVersion != ''
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ steps.semver.outputs.next }}
-          release_name: "Release ${{ steps.semver.outputs.next }}"
+          tag_name: ${{ steps.semver.outputs.nextVersion }}
+          release_name: "Release ${{ steps.semver.outputs.nextVersion }}"
           body: |
             ## Changes
             - New version created based on recent updates
