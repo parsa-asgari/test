@@ -18,22 +18,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Determine next version and create tag
+      - name: Get Next Version
         id: semver
         uses: ietf-tools/semver-action@v1.8.0
+        with:
+          token: ${{ github.token }}
+          branch: main
 
       - name: Create and push tag
-        if: steps.semver.outputs.new_version != ''
+        if: steps.semver.outputs.next != ''
         run: |
-          git tag ${{ steps.semver.outputs.new_version }}
-          git push origin ${{ steps.semver.outputs.new_version }}
+          git tag ${{ steps.semver.outputs.next }}
+          git push origin ${{ steps.semver.outputs.next }}
 
       - name: Create GitHub release
-        if: steps.semver.outputs.new_version != ''
+        if: steps.semver.outputs.next != ''
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ steps.semver.outputs.new_version }}
-          release_name: "Release ${{ steps.semver.outputs.new_version }}"
+          tag_name: ${{ steps.semver.outputs.next }}
+          release_name: "Release ${{ steps.semver.outputs.next }}"
           body: |
             ## Changes
             - New version created based on recent updates
