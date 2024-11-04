@@ -21,10 +21,6 @@ jobs:
       - name: Determine next version and create tag
         id: semver
         uses: ietf-tools/semver-action@v1.8.0
-        with:
-          minor_pattern: "^feat"
-          patch_pattern: "^fix"
-          major_pattern: "^BREAKING"
 
       - name: Create and push tag
         if: steps.semver.outputs.new_version != ''
